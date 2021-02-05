@@ -1,0 +1,64 @@
+﻿<rules-extension-properties>
+
+  <!--     
+  Created 2017.Oct.19 - Jim Johnston, Microsoft Corporation
+  jim.johnston@microsoft.com
+  This file is read upon initialization of the MIM service.  It is reloaded if Terminate has been called, if
+  any file in the \Extensions folder is modified, or after 5 minutes of inactivity
+  Last update: 2018.05.09 JimJoh: added do-not-project-email-suffixes section for each MA
+  -->
+
+  <management-agents>
+
+    <!-- 
+    Create a section for each management agent to hold it's configuration info. 
+    At the minimum, each MA should have it's name defined here if there are any rules extensions
+    that reference it, rather than hard-coding any names into the extensions themselves.  This allows for 
+    flexibility in MA renames in the future if organizations or logic changes
+    -->
+
+    <ADMA>
+      <!--This is the MA name. This is referenced in code, so it must be accurate-->
+      <name>ADMA</name>
+      <!--This is the default OU where we will create contact objects if the MA doesn't have its target OU defined. NOTE the preceding COMMA!-->
+      <outbound-target-ou>,OU=External</outbound-target-ou>
+      <!--This allows us to selectively enable and disable specific MAs for troubleshooting-->
+      <enabled>true</enabled>
+      <!--this is prepended to mail to create legDN in IDLabs for partner objects-->
+      <legdn-prefix>/o=IDLabs/ou=IDLabs/cn=Recipients/cn=</legdn-prefix>
+      <do-not-project-email-suffixes>mail.mil,sofsa.mil</do-not-project-email-suffixes>
+      <!--this list contains email suffixes which are join only, new objects cannot be projected as other MAs own the email namespace -->
+    </ADMA>
+
+    <!-- these are mission partner and subordinate agencies-->
+    <!-- do NOT add any comments between the <mission-partners> and </mission-partners> tags or it will break things-->
+
+    <mission-partners>
+
+      <IDMI>
+        <name>IDMI</name>
+        <!--This is the MA name. This is referenced in code, so it must be accurate-->
+        <is-target>true</is-target>
+        <!--true/false - controls whether this is a read-only MA (false) or if we provision contacts to it (true)-->
+        <cs-object-type>user</cs-object-type>
+        <!-- what kind of object we create in this MA-->
+        
+        <target-ou>,OU=ExtContacts,DC=IDLabs,DC=us</target-ou>
+        <!--we provision inbound contact objects TO this ou in SOCOM AD. NOTE the preceding COMMA! -->
+        <ma-target-ou>,OU=GAL,DC=<DOMAIN>,DC=com</ma-target-ou>
+        <!--we provision outbound contact objects TO this ou in the MA. NOTE the preceding COMMA! -->
+        
+        <source-domain-suffix>,O=IDMI,C=US</source-domain-suffix>
+        <!--This MAs domain suffix that we strip off when constructing the o attribute if ou replication is needed. NOTE the preceding COMMA! -->
+        <partner-type>Partner</partner-type>
+        <!--partner type - Partner (SOCOM and Subordinate provision to this), or Subordinate (all objects provisioned to this)-->
+        <enabled>true</enabled>
+        <!--true/false - enables and disables provisioning TO this MA. if is-target is false then this flag does nothing -->
+        
+      </IDMI>
+
+
+
+    </mission-partners>
+  </management-agents>
+</rules-extension-properties>
